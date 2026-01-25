@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface ExploreCareerRepository extends JpaRepository<ExploreCareer, Long> {
     
-    List<ExploreCareer> findAllByOrderByCreatedAtDesc();
+    List<ExploreCareer> findAllByOrderByCreatedDateDesc();
     
-    @Query("SELECT e FROM ExploreCareer e WHERE e.jobSector = :sector ORDER BY e.createdAt DESC")
+    @Query("SELECT e FROM ExploreCareer e WHERE e.jobSector = :sector ORDER BY e.createdDate DESC")
     List<ExploreCareer> findByJobSector(@Param("sector") String sector);
     
     @Query("SELECT e FROM ExploreCareer e WHERE e.title LIKE %:keyword% OR e.description LIKE %:keyword%")

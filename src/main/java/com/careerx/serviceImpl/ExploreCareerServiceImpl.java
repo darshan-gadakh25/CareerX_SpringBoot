@@ -23,7 +23,7 @@ public class ExploreCareerServiceImpl implements ExploreCareerService {
 
     @Override
     public List<ExploreCareerResponse> getAllCareers() {
-        return exploreCareerRepository.findAllByOrderByCreatedAtDesc()
+        return exploreCareerRepository.findAllByOrderByCreatedDateDesc()
                 .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
