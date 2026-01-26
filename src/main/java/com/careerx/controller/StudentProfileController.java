@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/student-profile")
+@RequestMapping("/api/StudentProfile")
 public class StudentProfileController {
 
     private final StudentProfileService studentProfileService;

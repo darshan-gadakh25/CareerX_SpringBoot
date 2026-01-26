@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,14 +28,14 @@ public class StudentProfile extends BaseEntity {
 
     // General Information
     @NotNull(message = "Date of Birth is required")
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @NotNull(message = "Gender is required")
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @NotBlank(message = "Mobile Number is required")
-    @Pattern(regexp = "^[0-9]{10}$", message = "Mobile Number must be 10 digits")
+    @Pattern(regexp = "^[0-9]{9,12}$", message = "Mobile Number must be between 9 and 12 digits")
     private String mobileNumber;
 
     private String preferredLanguage;
