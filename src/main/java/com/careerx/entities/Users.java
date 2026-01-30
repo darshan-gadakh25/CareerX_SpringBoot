@@ -1,6 +1,8 @@
 package com.careerx.entities;
 
 import com.careerx.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -20,6 +22,7 @@ public class Users extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
+	@JsonIgnore
 	@Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{6,}$", message = "Password must contain at least one letter, one number, and one special character")
 	private String password;
 
@@ -33,6 +36,7 @@ public class Users extends BaseEntity {
 	@Column(nullable = false)
 	private int age;
 
+	@Builder.Default
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private UserRole role = UserRole.STUDENT;

@@ -1,7 +1,6 @@
 package com.careerx.controller;
 
 import com.careerx.apirequests.StudentProfileRequest;
-import com.careerx.apiresponses.StudentProfileResponse;
 import com.careerx.services.StudentProfileService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,7 +20,7 @@ public class StudentProfileController {
 
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody StudentProfileRequest request,
-                                   Authentication authentication) {
+            Authentication authentication) {
         try {
             Long userId = Long.parseLong(authentication.getName());
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -55,7 +54,7 @@ public class StudentProfileController {
 
     @PutMapping
     public ResponseEntity<?> update(@Valid @RequestBody StudentProfileRequest request,
-                                   Authentication authentication) {
+            Authentication authentication) {
         try {
             Long userId = Long.parseLong(authentication.getName());
             return ResponseEntity.ok(studentProfileService.updateStudentProfile(userId, request));
@@ -76,6 +75,19 @@ public class StudentProfileController {
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new com.careerx.apiresponses.ApiResponse<>("Student profile not found", "Failed"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new com.careerx.apiresponses.ApiResponse<>(e.getMessage(), "Failed"));
+        }
+    }
+
+    @PostMapping("/picture")
+    public ResponseEntity<?> uploadPicture(@RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+            Authentication authentication) {
+        try {
+            Long userId = Long.parseLong(authentication.getName());
+            String url = studentProfileService.uploadProfilePicture(userId, file);
+            return ResponseEntity.ok(java.util.Map.of("profilePictureUrl", url));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new com.careerx.apiresponses.ApiResponse<>(e.getMessage(), "Failed"));

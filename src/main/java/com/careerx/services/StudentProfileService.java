@@ -14,4 +14,6 @@ public interface StudentProfileService {
     StudentProfileResponse updateStudentProfile(Long userId, StudentProfileRequest request);
 
     boolean deleteStudentProfile(Long userId);
+
+    String uploadProfilePicture(Long userId, org.springframework.web.multipart.MultipartFile file);
 }

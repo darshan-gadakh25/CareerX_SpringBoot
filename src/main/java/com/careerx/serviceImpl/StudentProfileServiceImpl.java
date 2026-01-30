@@ -1,6 +1,5 @@
 package com.careerx.serviceImpl;
 
-
 import com.careerx.apirequests.StudentProfileRequest;
 import com.careerx.apiresponses.AchievementsAndCertifications;
 import com.careerx.apiresponses.CareerInterests;
@@ -29,7 +28,7 @@ public class StudentProfileServiceImpl implements StudentProfileService {
     private final UserRepository userRepository;
 
     public StudentProfileServiceImpl(StudentProfileRepository studentProfileRepository,
-                                     UserRepository userRepository) {
+            UserRepository userRepository) {
         this.studentProfileRepository = studentProfileRepository;
         this.userRepository = userRepository;
     }
@@ -40,9 +39,9 @@ public class StudentProfileServiceImpl implements StudentProfileService {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User with ID " + userId + " not found"));
 
-        studentProfileRepository.findByUserId(userId).ifPresent(p -> {
+        if (!studentProfileRepository.findByUserId(userId).isEmpty()) {
             throw new RuntimeException("Student profile already exists for user ID " + userId);
-        });
+        }
 
         StudentProfile profile = new StudentProfile();
         profile.setUserId(userId);
@@ -56,7 +55,8 @@ public class StudentProfileServiceImpl implements StudentProfileService {
 
     @Override
     public StudentProfileResponse getStudentProfile(Long userId) {
-        StudentProfile profile = studentProfileRepository.findByUserId(userId)
+        StudentProfile profile = studentProfileRepository.findByUserId(userId).stream()
+                .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Student profile not found for user ID " + userId));
 
         return mapToResponse(profile);
@@ -65,14 +65,16 @@ public class StudentProfileServiceImpl implements StudentProfileService {
     @Override
     public StudentProfileResponse getStudentProfileById(Long studentId) {
         StudentProfile profile = studentProfileRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Student profile not found for student ID " + studentId));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Student profile not found for student ID " + studentId));
 
         return mapToResponse(profile);
     }
 
     @Override
     public StudentProfileResponse updateStudentProfile(Long userId, StudentProfileRequest request) {
-        StudentProfile profile = studentProfileRepository.findByUserId(userId)
+        StudentProfile profile = studentProfileRepository.findByUserId(userId).stream()
+                .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Student profile not found for user ID " + userId));
 
         mapRequestToEntity(profile, request);
@@ -84,11 +86,34 @@ public class StudentProfileServiceImpl implements StudentProfileService {
 
     @Override
     public boolean deleteStudentProfile(Long userId) {
-        StudentProfile profile = studentProfileRepository.findByUserId(userId).orElse(null);
-        if (profile == null) return false;
+        StudentProfile profile = studentProfileRepository.findByUserId(userId).stream()
+                .findFirst()
+                .orElse(null);
+        if (profile == null)
+            return false;
 
         studentProfileRepository.delete(profile);
         return true;
+    }
+
+    @Override
+    public String uploadProfilePicture(Long userId, org.springframework.web.multipart.MultipartFile file) {
+        try {
+            Users user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            String fileName = userId + "_" + java.util.UUID.randomUUID() + "_" + file.getOriginalFilename();
+            // In a real app, save to S3 or a local directory
+            // For now, let's just simulate the URL
+            String fileUrl = "/uploads/profiles/" + fileName;
+
+            user.setProfilePictureUrl(fileUrl);
+            userRepository.save(user);
+
+            return fileUrl;
+        } catch (Exception e) {
+            throw new RuntimeException("Could not upload file: " + e.getMessage());
+        }
     }
 
     // 🔁 Mapping Methods
@@ -137,8 +162,10 @@ public class StudentProfileServiceImpl implements StudentProfileService {
             profile.setAcademicAchievements(request.getAchievementsAndCertifications().getAcademicAchievements());
             profile.setScholarships(request.getAchievementsAndCertifications().getScholarships());
             profile.setRankOrMeritCertificates(request.getAchievementsAndCertifications().getRankOrMeritCertificates());
-            profile.setCompetitionsOrHackathons(request.getAchievementsAndCertifications().getCompetitionsOrHackathons());
-            profile.setSportsOrCulturalAchievements(request.getAchievementsAndCertifications().getSportsOrCulturalAchievements());
+            profile.setCompetitionsOrHackathons(
+                    request.getAchievementsAndCertifications().getCompetitionsOrHackathons());
+            profile.setSportsOrCulturalAchievements(
+                    request.getAchievementsAndCertifications().getSportsOrCulturalAchievements());
             profile.setCertifications(request.getAchievementsAndCertifications().getCertifications());
             profile.setCertificationCourseName(request.getAchievementsAndCertifications().getCertificationCourseName());
             profile.setCertificationPlatform(request.getAchievementsAndCertifications().getCertificationPlatform());

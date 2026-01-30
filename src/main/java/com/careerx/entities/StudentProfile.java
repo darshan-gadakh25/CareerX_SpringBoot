@@ -22,6 +22,7 @@ public class StudentProfile extends BaseEntity {
     @Column(name = "user_id")
     private Long userId;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
     private Users user;
